@@ -60,7 +60,7 @@ const cityShopsRateMiddleware = (req, res, next) => {
 };
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5000;
 
 app.use(helmet({
     frameguard: false,
@@ -662,4 +662,15 @@ app.get('/api/stream/:code/:fileId', cspMiddleware, async (req, res) => {
 // Start cleanup scheduler
 startScheduler();
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// At the bottom of backend/server.js:
+const PORT = process.env.PORT || 5000;
+
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
