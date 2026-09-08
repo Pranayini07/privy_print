@@ -229,43 +229,75 @@ const NearbyShops = () => {
                         )}
                     </div>
                 ) : (
-                    /* Search by City Form */
-                    <form onSubmit={handleCitySubmit} style={{ maxWidth: '550px', margin: '1rem auto 0', display: 'flex', gap: '0.5rem' }}>
-                        <div style={{ position: 'relative', flex: 1 }}>
-                            <Search
-                                size={18}
+                    <>
+                        {/* Search by City Form */}
+                        <form onSubmit={handleCitySubmit} style={{ maxWidth: '550px', margin: '1rem auto 0', display: 'flex', gap: '0.5rem' }}>
+                            <div style={{ position: 'relative', flex: 1 }}>
+                                <Search
+                                    size={18}
+                                    style={{
+                                        position: 'absolute',
+                                        left: '1rem',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        color: 'var(--text-secondary)'
+                                    }}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Enter city name (e.g., Hyderabad, Bangalore, Mumbai...)"
+                                    value={cityInput}
+                                    onChange={(e) => setCityInput(e.target.value)}
+                                    style={{
+                                        paddingLeft: '2.75rem',
+                                        paddingRight: '1rem',
+                                        fontSize: '0.95rem'
+                                    }}
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading || cityInput.trim().length < 2}
                                 style={{
-                                    position: 'absolute',
-                                    left: '1rem',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    color: 'var(--text-secondary)'
+                                    padding: '0.75rem 1.5rem',
+                                    fontSize: '0.9rem',
+                                    flexShrink: 0
                                 }}
-                            />
-                            <input
-                                type="text"
-                                placeholder="Enter city name (e.g., Vijayawada, Hyderabad, Mumbai...)"
-                                value={cityInput}
-                                onChange={(e) => setCityInput(e.target.value)}
-                                style={{
-                                    paddingLeft: '2.75rem',
-                                    paddingRight: '1rem',
-                                    fontSize: '0.95rem'
-                                }}
-                            />
+                            >
+                                {loading ? 'Searching...' : 'Search'}
+                            </button>
+                        </form>
+
+                        {/* Quick City suggestions */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Quick Explore:</span>
+                            {['Hyderabad', 'Bengaluru', 'Vijayawada', 'Visakhapatnam', 'Kakinada', 'Chennai', 'Mumbai', 'Delhi'].map(city => (
+                                <button
+                                    key={city}
+                                    type="button"
+                                    onClick={() => {
+                                        setCityInput(city);
+                                        fetchCityShops(city, radius);
+                                    }}
+                                    disabled={loading}
+                                    style={{
+                                        padding: '0.2rem 0.55rem',
+                                        fontSize: '0.75rem',
+                                        background: 'rgba(59, 130, 246, 0.08)',
+                                        color: 'var(--primary)',
+                                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                                        borderRadius: '12px',
+                                        cursor: 'pointer',
+                                        fontWeight: '600',
+                                        textTransform: 'none',
+                                        letterSpacing: 'normal'
+                                    }}
+                                >
+                                    {city}
+                                </button>
+                            ))}
                         </div>
-                        <button
-                            type="submit"
-                            disabled={loading || cityInput.trim().length < 2}
-                            style={{
-                                padding: '0.75rem 1.5rem',
-                                fontSize: '0.9rem',
-                                flexShrink: 0
-                            }}
-                        >
-                            {loading ? 'Searching...' : 'Search'}
-                        </button>
-                    </form>
+                    </>
                 )}
 
                 {/* Radius Filter Bar */}

@@ -464,7 +464,10 @@ app.post('/api/document/expire/:code', async (req, res) => {
     const { code } = req.params;
     try {
         const metadata = await getMetadata(code);
-        if (!metadata) return res.status(404).json({ error: 'Document not found' });
+        if (!metadata) {
+            // Document has already been deleted/cleaned up from server
+            return res.json({ success: true, message: 'Document is already expired and purged', alreadyExpired: true });
+        }
         metadata.expiresAt = new Date(Date.now() - 1000);
         metadata.status = 'EXPIRED';
         await saveMetadata(metadata);
@@ -474,6 +477,7 @@ app.post('/api/document/expire/:code', async (req, res) => {
 
         res.json({ success: true, message: 'Document expired successfully' });
     } catch (error) {
+        console.error('[Expire] Error expiring document:', error);
         res.status(500).json({ error: 'Failed to expire document' });
     }
 });

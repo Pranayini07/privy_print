@@ -176,6 +176,17 @@ const Home = () => {
             setExpireConfirmOpen(false);
             setCodeToExpire(null);
         } catch (err) {
+            // If already deleted/expired on server (404 or 410), treat as successfully expired
+            if (err.response && (err.response.status === 404 || err.response.status === 410)) {
+                const updatedHistory = history.map(item =>
+                    item.code === codeToExpire ? { ...item, expiresAt: new Date(Date.now() - 1000).toISOString() } : item
+                );
+                setHistory(updatedHistory);
+                localStorage.setItem('privy_history', JSON.stringify(updatedHistory));
+                setExpireConfirmOpen(false);
+                setCodeToExpire(null);
+                return;
+            }
             console.error('Failed to expire', err);
             alert('Failed to expire document. Please try again.');
         }
@@ -1282,7 +1293,7 @@ const HistoryItem = ({ item, onExtendClick, onExpireNow, onNavigate, onExtendSuc
             try {
                 const res = await axios.get(`${API_BASE}/api/document/verify/${item.code}`);
                 if (isMounted) {
-                    if (res.data.status === 'EXPIRED') {
+                    if (res.data.status === 'EXPIRED' || res.data.status === 'PRINT_LIMIT_REACHED' || (res.data.printsRemaining !== null && res.data.printsRemaining <= 0)) {
                         setIsExpired(true);
                         setTimeLeft('EXPIRED');
                     } else {
@@ -1293,7 +1304,7 @@ const HistoryItem = ({ item, onExtendClick, onExpireNow, onNavigate, onExtendSuc
                     }
                 }
             } catch (error) {
-                if (isMounted && error.response && error.response.status === 410) {
+                if (isMounted && error.response && (error.response.status === 410 || error.response.status === 404)) {
                     setIsExpired(true);
                     setTimeLeft('EXPIRED');
                 }
